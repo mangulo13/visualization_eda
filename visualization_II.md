@@ -85,3 +85,95 @@ weather_df %>%
     ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9 2017-01-01
     ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6   2017-01-01
     ## # ... with 1,085 more rows
+
+## counting things
+
+Count month observations
+
+``` r
+weather_df %>% 
+  group_by(name, month) %>% 
+  summarize(n_obs = n())
+```
+
+    ## `summarise()` regrouping output by 'name' (override with `.groups` argument)
+
+    ## # A tibble: 36 x 3
+    ## # Groups:   name [3]
+    ##    name           month      n_obs
+    ##    <chr>          <date>     <int>
+    ##  1 CentralPark_NY 2017-01-01    31
+    ##  2 CentralPark_NY 2017-02-01    28
+    ##  3 CentralPark_NY 2017-03-01    31
+    ##  4 CentralPark_NY 2017-04-01    30
+    ##  5 CentralPark_NY 2017-05-01    31
+    ##  6 CentralPark_NY 2017-06-01    30
+    ##  7 CentralPark_NY 2017-07-01    31
+    ##  8 CentralPark_NY 2017-08-01    31
+    ##  9 CentralPark_NY 2017-09-01    30
+    ## 10 CentralPark_NY 2017-10-01    31
+    ## # ... with 26 more rows
+
+We can use count as well
+
+``` r
+weather_df %>% 
+  count(name, month, name = "n_obs")
+```
+
+    ## # A tibble: 36 x 3
+    ##    name           month      n_obs
+    ##    <chr>          <date>     <int>
+    ##  1 CentralPark_NY 2017-01-01    31
+    ##  2 CentralPark_NY 2017-02-01    28
+    ##  3 CentralPark_NY 2017-03-01    31
+    ##  4 CentralPark_NY 2017-04-01    30
+    ##  5 CentralPark_NY 2017-05-01    31
+    ##  6 CentralPark_NY 2017-06-01    30
+    ##  7 CentralPark_NY 2017-07-01    31
+    ##  8 CentralPark_NY 2017-08-01    31
+    ##  9 CentralPark_NY 2017-09-01    30
+    ## 10 CentralPark_NY 2017-10-01    31
+    ## # ... with 26 more rows
+
+NEVER use base R’s table function
+
+``` r
+weather_df %>% 
+  pull(month) %>% 
+  table()
+```
+
+    ## .
+    ## 2017-01-01 2017-02-01 2017-03-01 2017-04-01 2017-05-01 2017-06-01 2017-07-01 
+    ##         93         84         93         90         93         90         93 
+    ## 2017-08-01 2017-09-01 2017-10-01 2017-11-01 2017-12-01 
+    ##         93         90         93         90         93
+
+Other helpful ocunters
+
+``` r
+weather_df %>% 
+  group_by(month) %>% 
+  summarize(
+    n_obs = n(),
+    n_days = n_distinct(date))
+```
+
+    ## `summarise()` ungrouping output (override with `.groups` argument)
+
+    ## # A tibble: 12 x 3
+    ##    month      n_obs n_days
+    ##    <date>     <int>  <int>
+    ##  1 2017-01-01    93     31
+    ##  2 2017-02-01    84     28
+    ##  3 2017-03-01    93     31
+    ##  4 2017-04-01    90     30
+    ##  5 2017-05-01    93     31
+    ##  6 2017-06-01    90     30
+    ##  7 2017-07-01    93     31
+    ##  8 2017-08-01    93     31
+    ##  9 2017-09-01    90     30
+    ## 10 2017-10-01    93     31
+    ## 11 2017-11-01    90     30
+    ## 12 2017-12-01    93     31
