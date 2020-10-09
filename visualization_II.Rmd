@@ -209,7 +209,11 @@ weather_df %>%
   )
 ```
 
+## Quick note
 
+Summarize only gets you so far
+
+If you want to spit out just one number responses thats mroe complicated
 
 
 
