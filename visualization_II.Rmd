@@ -92,6 +92,36 @@ weather_df %>%
     n_days = n_distinct(date))
 ```
 
+## A digression on 2x2 tables
+
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE ~ ""
+    )
+  ) %>% 
+  group_by(name, cold) %>% 
+  summarize(count = n()) 
+```
+
+```{r}
+weather_df %>% 
+  filter(name != "Waikiki_HA") %>% 
+  mutate(
+    cold = case_when(
+      tmax < 5 ~ "cold",
+      tmax >= 5 ~ "not_cold",
+      TRUE ~ ""
+    )
+  ) %>% 
+  janitor::tabyl(name, cold)
+```
+
+Dont use the TABLE function, it's just bad cause it doesnt prduce a df
 
 
 
