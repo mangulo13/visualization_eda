@@ -1,148 +1,9 @@
 ---
-title: "Visualization"
-subtitle: "Part II"
+title: "Exploratory analysis"
 output: github_document
 ---
 
-```{r setup}
-library(tidyverse)
-library(patchwork)
-
-```
-
-## Load the weather data
-
-```{r}
-weather_df = 
-  rnoaa::meteo_pull_monitors(
-    c("USW00094728", "USC00519397", "USS0023B17S"),
-    var = c("PRCP", "TMIN", "TMAX"), 
-    date_min = "2017-01-01",
-    date_max = "2017-12-31") %>%
-  mutate(
-    name = recode(
-      id, 
-      USW00094728 = "CentralPark_NY", 
-      USC00519397 = "Waikiki_HA",
-      USS0023B17S = "Waterhole_WA"),
-    tmin = tmin / 10,
-    tmax = tmax / 10) %>%
-  select(name, id, everything())
-
-weather_df
-```
-
-## Remember this plot...?
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5)
-```
-
-
-## Labels
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5) +
-  labs(
-    title = "Temperature plot",
-    x = "Minimum daily temperature (C)",
-    y = "Maximum daily temperature (C)",
-    caption = "Data from rnoaa package: temperatures in 2017."
-  )
-```
-
-
-## Scales
-
-Start with the same plots: x and y scales
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5) +
-  labs(
-    title = "Temperature plot",
-    x = "Minimum daily temperature (C)",
-    y = "Maximum daily temperature (C)",
-    caption = "Data from rnoaa package: temperatures in 2017."
-  ) +
-  scale_x_continuous(
-    breaks = c(-15, 0, 15),
-    labels = c("-15 C", "0", "15")
-  )+
-  scale_y_continuous(
-    position = "right"
-  )
-
-```
-
-Look at color scales 
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5) +
-  labs(
-    title = "Temperature plot",
-    x = "Minimum daily temperature (C)",
-    y = "Maximum daily temperature (C)",
-    caption = "Data from rnoaa package: temperatures in 2017."
-  ) +
-  viridis::scale_color_viridis(
-    name = "Location",
-    discrete = TRUE)
-
-```
-
-
-## Themes
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5) +
-  labs(
-    title = "Temperature plot",
-    x = "Minimum daily temperature (C)",
-    y = "Maximum daily temperature (C)",
-    caption = "Data from rnoaa package: temperatures in 2017."
-  ) +
-  viridis::scale_color_viridis(
-    name = "Location",
-    discrete = TRUE) +
-  theme(legend.position = "bottom")
-
-```
-
-Change the overall theme
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name)) +
-  geom_point(alpha = .5) +
-  labs(
-    title = "Temperature plot",
-    x = "Minimum daily temperature (C)",
-    y = "Maximum daily temperature (C)",
-    caption = "Data from rnoaa package: temperatures in 2017."
-  ) +
-  viridis::scale_color_viridis(
-    name = "Location",
-    discrete = TRUE) +
-  theme_minimal() +
-  theme(legend.position = "bottom")
-
-```
-
-Theme often overwrites what is above it, so if you want to keep something write below theme
-
-## Setting options
-
-```{r, eval = FALSE}
+```{r setup, include = FALSE}
 library(tidyverse)
 
 knitr::opts_chunk$set(
@@ -164,130 +25,38 @@ scale_fill_discrete = scale_fill_viridis_d
 
 ```
 
-Put this code at the start of each RMD
 
-
-## Data args in 'geom'
+## Load the weather data
 
 ```{r}
-central_park = 
-    weather_df %>% 
-  filter(name == "CentralPark_NY")
-
-waikiki = 
-  weather_df %>% 
-  filter(name == "Waikiki_HA")
-
-ggplot(data = waikiki, aes(x = date, y = tmax, color = name))+
-  geom_point()+
-  geom_line(data = central_park)
-
-```
-
-##'patchwork'
-
-Remember faceting??
-
-
-```{r}
-weather_df %>% 
-  ggplot(aes(x = tmin, fill = name))+
-  geom_density(alpha = .5)+
-  facet_grid(. ~ name)
-```
-
-
-What happens when you want multipanel plots but can't facet? Patchwork! 
-
-```{r}
-tmax_tmin_p =
-  weather_df %>% 
-  ggplot(aes(x = tmin, y = tmax, color = name))+
-  geom_point(alpha = .5)+
-  theme(legend.position = "none")
-
-prcp_dens_p = 
-  weather_df %>% 
-  filter(prcp > 0) %>% 
-  ggplot(aes(x = prcp, fill = name))+
-  geom_density(alpha = .5)+
-  theme(legend.position = "none")
-
-tmax_date_p =
-  weather_df %>% 
-  ggplot(aes(x = date, y = tmax, color =name))+
-  geom_point()+
-  geom_smooth(se = FALSE)+
-  theme(legend.position = "none")
-
-(tmax_tmin_p + prcp_dens_p) / tmax_date_p
-
-```
-
-## Data manipulation 
-
-Control your factors
-
-Character vectors are transformed into factors. So ggplot makes Name a factor with label 1, and puts it into alphabetical order. So let's manipulate df and not in ggplot
-
-```{r}
-weather_df %>% 
+weather_df = 
+  rnoaa::meteo_pull_monitors(
+    c("USW00094728", "USC00519397", "USS0023B17S"),
+    var = c("PRCP", "TMIN", "TMAX"), 
+    date_min = "2017-01-01",
+    date_max = "2017-12-31") %>%
   mutate(
-    name = factor(name),
-    name = forcats:: fct_relevel(name, c("Waikiki_HA"))
-  ) %>% 
-  ggplot(aes(x = name ,y = tmax, fill = name))+
-  geom_violin(alpha = .5)
+    name = recode(
+      id, 
+      USW00094728 = "CentralPark_NY", 
+      USC00519397 = "Waikiki_HA",
+      USS0023B17S = "Waterhole_WA"),
+    tmin = tmin / 10,
+    tmax = tmax / 10,
+    month = lubridate::floor_date(date, unit = "month")) %>% 
+  select(name, id, everything())
+
+weather_df
 ```
 
-What if I wanted densities for tmin and tmax simultaneously?
+## intro to group_by
 
 ```{r}
 weather_df %>% 
-  pivot_longer(
-    tmax:tmin,
-    names_to = "observation",
-    values_to = "temperatures"
-  ) %>% 
-  ggplot(aes(x = temperatures, fill = observation))+
-  geom_density(alpha = .5)+
-  facet_grid(. ~ name)
+  group_by(name, month) 
+
+  
 ```
-
-
-## Revisit the pups
-
-Data from the FAS study 
-
-```{r}
-pup_data = 
-  read.csv("./data/FAS_pups.csv") %>% 
-  janitor::clean_names() %>% 
-  mutate(sex = recode(sex, `1` = "male", `2` = "female"))
-
-litters_data = 
-  read.csv("./data/FAS_litters.csv") %>% 
-  janitor::clean_names() %>% 
-  separate(group, into = c("dose", "day_of_tx"), sep = 3)
-
-fas_data = left_join(pup_data, litters_data, by = "litter_number")
-
-
-fas_data %>% 
-  select(dose, day_of_tx, starts_with("pd_")) %>% 
-  pivot_longer(
-    pd_ears:pd_walk,
-    names_to = "outcome",
-    values_to = "pn_day"
-  ) %>% 
-  drop_na() %>% 
-  mutate(outcome = forcats:: fct_relevel(outcome, "pd_ears", "pd_pivot", "pd_walk", "pd_eyes")) %>% 
-  ggplot(aes(x = dose, y = pn_day))+
-  geom_violin() +
-  facet_grid(day_of_tx ~ outcome)
-```
-
-
 
 
 
