@@ -99,8 +99,46 @@ weather_df %>%
 ```
 
 
+## Themes
 
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)",
+    caption = "Data from rnoaa package: temperatures in 2017."
+  ) +
+  viridis::scale_color_viridis(
+    name = "Location",
+    discrete = TRUE) +
+  theme(legend.position = "bottom")
 
+```
+
+Change the overall theme
+
+```{r}
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)",
+    caption = "Data from rnoaa package: temperatures in 2017."
+  ) +
+  viridis::scale_color_viridis(
+    name = "Location",
+    discrete = TRUE) +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+
+```
+
+Theme often overwrites what is above it, so if you want to keep something write below theme
 
 
 
