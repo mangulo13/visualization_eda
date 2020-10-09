@@ -302,3 +302,77 @@ tmax_date_p =
     ## Warning: Removed 3 rows containing missing values (geom_point).
 
 ![](visualization_II_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+## Data manipulation
+
+Control your factors
+
+Character vectors are transformed into factors. So ggplot makes Name a
+factor with label 1, and puts it into alphabetical order. So let’s
+manipulate df and not in ggplot
+
+``` r
+weather_df %>% 
+  mutate(
+    name = factor(name),
+    name = forcats:: fct_relevel(name, c("Waikiki_HA"))
+  ) %>% 
+  ggplot(aes(x = name ,y = tmax, fill = name))+
+  geom_violin(alpha = .5)
+```
+
+    ## Warning: Removed 3 rows containing non-finite values (stat_ydensity).
+
+![](visualization_II_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
+
+What if I wanted densities for tmin and tmax simultaneously?
+
+``` r
+weather_df %>% 
+  pivot_longer(
+    tmax:tmin,
+    names_to = "observation",
+    values_to = "temperatures"
+  ) %>% 
+  ggplot(aes(x = temperatures, fill = observation))+
+  geom_density(alpha = .5)+
+  facet_grid(. ~ name)
+```
+
+    ## Warning: Removed 18 rows containing non-finite values (stat_density).
+
+![](visualization_II_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+
+## Revisit the pups
+
+Data from the FAS study
+
+``` r
+pup_data = 
+  read.csv("./data/FAS_pups.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(sex = recode(sex, `1` = "male", `2` = "female"))
+
+litters_data = 
+  read.csv("./data/FAS_litters.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(group, into = c("dose", "day_of_tx"), sep = 3)
+
+fas_data = left_join(pup_data, litters_data, by = "litter_number")
+
+
+fas_data %>% 
+  select(dose, day_of_tx, starts_with("pd_")) %>% 
+  pivot_longer(
+    pd_ears:pd_walk,
+    names_to = "outcome",
+    values_to = "pn_day"
+  ) %>% 
+  drop_na() %>% 
+  mutate(outcome = forcats:: fct_relevel(outcome, "pd_ears", "pd_pivot", "pd_walk", "pd_eyes")) %>% 
+  ggplot(aes(x = dose, y = pn_day))+
+  geom_violin() +
+  facet_grid(day_of_tx ~ outcome)
+```
+
+![](visualization_II_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
